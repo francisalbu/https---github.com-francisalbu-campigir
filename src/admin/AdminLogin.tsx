@@ -3,18 +3,23 @@ import { login } from "@/admin/api";
 
 export const AdminLogin = ({ onSuccess }: { onSuccess: () => void }) => {
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(false);
+    setError(null);
     try {
       await login(password);
       onSuccess();
-    } catch {
-      setError(true);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      setError(
+        msg === "Invalid password"
+          ? "Password incorreta."
+          : "API indisponível. Verifica o backend e VITE_API_URL.",
+      );
     } finally {
       setLoading(false);
     }
@@ -51,7 +56,7 @@ export const AdminLogin = ({ onSuccess }: { onSuccess: () => void }) => {
 
         {error && (
           <p className="text-red-300 font-ppneuemontreal text-[14px] mb-4">
-            Password incorreta.
+            {error}
           </p>
         )}
 

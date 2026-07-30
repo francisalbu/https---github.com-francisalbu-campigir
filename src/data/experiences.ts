@@ -66,7 +66,11 @@ type Database = {
  * unreachable (e.g. static-only preview), we fall back to the bundled
  * db.json so the app still renders. Bookings go through createBooking().
  */
-const API_URL = "/api/experiences";
+const API_BASE = (
+  (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).
+    env?.VITE_API_URL ?? ""
+).replace(/\/+$/, "");
+const API_URL = `${API_BASE}/api/experiences`;
 const FALLBACK_URL = "./db.json";
 
 let cache: Experience[] | null = null;
@@ -124,7 +128,7 @@ export type Booking = {
 
 /** Submit a booking to the backend. Returns the persisted booking. */
 export async function createBooking(input: BookingInput): Promise<Booking> {
-  const res = await fetch("/api/bookings", {
+  const res = await fetch(`${API_BASE}/api/bookings`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

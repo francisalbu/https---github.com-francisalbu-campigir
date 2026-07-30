@@ -6,6 +6,14 @@
  */
 
 const TOKEN_KEY = "campigir-admin-token";
+const API_BASE = (
+  (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).
+    env?.VITE_API_URL ?? ""
+).replace(/\/+$/, "");
+
+function apiUrl(path: string): string {
+  return `${API_BASE}${path}`;
+}
 
 export type Booking = {
   id: number;
@@ -123,19 +131,22 @@ function authHeaders(): HeadersInit {
 
 /** Exchange the password for a token. Throws on invalid credentials. */
 export async function login(password: string): Promise<string> {
-  const res = await fetch("/api/admin/login", {
+  const res = await fetch(apiUrl("/api/admin/login"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ password }),
   });
-  if (!res.ok) throw new Error("Invalid password");
+  if (!res.ok) {
+    if (res.status === 401) throw new Error("Invalid password");
+    throw new Error("Admin API unavailable");
+  }
   const data = (await res.json()) as { token: string };
   setToken(data.token);
   return data.token;
 }
 
 export async function fetchStats(): Promise<Stats> {
-  const res = await fetch("/api/admin/stats", { headers: authHeaders() });
+  const res = await fetch(apiUrl("/api/admin/stats"), { headers: authHeaders() });
   if (res.status === 401) throw new UnauthorizedError();
   if (!res.ok) throw new Error("Failed to load stats");
   const data = (await res.json()) as { stats: Stats };
@@ -143,7 +154,7 @@ export async function fetchStats(): Promise<Stats> {
 }
 
 export async function fetchBookings(): Promise<Booking[]> {
-  const res = await fetch("/api/bookings", { headers: authHeaders() });
+  const res = await fetch(apiUrl("/api/bookings"), { headers: authHeaders() });
   if (res.status === 401) throw new UnauthorizedError();
   if (!res.ok) throw new Error("Failed to load bookings");
   const data = (await res.json()) as { bookings: Booking[] };
@@ -154,7 +165,7 @@ export async function updateStatus(
   id: number,
   status: BookingStatus,
 ): Promise<Booking> {
-  const res = await fetch(`/api/bookings/${id}`, {
+  const res = await fetch(apiUrl(`/api/bookings/${id}`), {
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({ status }),
@@ -166,7 +177,7 @@ export async function updateStatus(
 }
 
 export async function deleteBooking(id: number): Promise<void> {
-  const res = await fetch(`/api/bookings/${id}`, {
+  const res = await fetch(apiUrl(`/api/bookings/${id}`), {
     method: "DELETE",
     headers: authHeaders(),
   });
@@ -188,7 +199,7 @@ async function parseJson<T>(res: Response, errorMsg: string): Promise<T> {
 }
 
 export async function fetchAdminExperiences(): Promise<AdminExperience[]> {
-  const res = await fetch("/api/admin/experiences", { headers: authHeaders() });
+  const res = await fetch(apiUrl("/api/admin/experiences"), { headers: authHeaders() });
   const data = await parseJson<{ experiences: AdminExperience[] }>(
     res,
     "Failed to load experiences",
@@ -199,7 +210,7 @@ export async function fetchAdminExperiences(): Promise<AdminExperience[]> {
 export async function createExperience(
   input: ExperienceInput,
 ): Promise<AdminExperience> {
-  const res = await fetch("/api/admin/experiences", {
+  const res = await fetch(apiUrl("/api/admin/experiences"), {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(input),
@@ -215,7 +226,7 @@ export async function updateExperience(
   id: string,
   input: Partial<ExperienceInput>,
 ): Promise<AdminExperience> {
-  const res = await fetch(`/api/admin/experiences/${id}`, {
+  const res = await fetch(apiUrl(`/api/admin/experiences/${id}`), {
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(input),
@@ -228,7 +239,7 @@ export async function updateExperience(
 }
 
 export async function deleteExperience(id: string): Promise<void> {
-  const res = await fetch(`/api/admin/experiences/${id}`, {
+  const res = await fetch(apiUrl(`/api/admin/experiences/${id}`), {
     method: "DELETE",
     headers: authHeaders(),
   });
@@ -246,7 +257,7 @@ export async function fetchAvailability(
 ): Promise<DayAvailability[]> {
   const params = new URLSearchParams({ from, to });
   const res = await fetch(
-    `/api/admin/experiences/${experienceId}/availability?${params}`,
+    apiUrl(`/api/admin/experiences/${experienceId}/availability?${params}`),
     { headers: authHeaders() },
   );
   const data = await parseJson<{ availability: DayAvailability[] }>(
@@ -261,7 +272,7 @@ export async function addBlackout(
   date: string,
   reason?: string,
 ): Promise<Blackout> {
-  const res = await fetch("/api/admin/blackouts", {
+  const res = await fetch(apiUrl("/api/admin/blackouts"), {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({ experienceId, date, reason }),
@@ -278,7 +289,7 @@ export async function removeBlackout(
   date: string,
 ): Promise<void> {
   const params = new URLSearchParams({ experienceId, date });
-  const res = await fetch(`/api/admin/blackouts?${params}`, {
+  const res = await fetch(apiUrl(`/api/admin/blackouts?${params}`), {
     method: "DELETE",
     headers: authHeaders(),
   });
