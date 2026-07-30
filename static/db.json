@@ -1,0 +1,112 @@
+{
+  "experiences": [
+    {
+      "id": "surf-lessons",
+      "href": "https://www.campigir.com/pt/atividade/28/aluguer-de-equipamento-de-surf",
+      "imageSrc": "https://www.campigir.com/site/uploads/servicos/imagens/62AA6666-90520_1.jpg",
+      "imageAlt": "Surf",
+      "type": "experience",
+      "title": { "pt": "Surf", "en": "Surfing" },
+      "duration": "2",
+      "price": "35"
+    },
+    {
+      "id": "walking-tours",
+      "href": "https://www.campigir.com/pt/atividades",
+      "imageSrc": "https://www.campigir.com/site/uploads/servicos/imagens/FAFA3810-95CE0_1.jpg",
+      "imageAlt": "Passeios Pedestres",
+      "type": "experience",
+      "title": { "pt": "Passeios Pedestres", "en": "Walking Tours" },
+      "duration": "3",
+      "price": "20"
+    },
+    {
+      "id": "canoeing",
+      "href": "https://www.campigir.com/pt/atividades",
+      "imageSrc": "https://www.campigir.com/site/uploads/servicos/imagens/750A0CF7-ECA40_1.jpg",
+      "imageAlt": "Canoagem",
+      "type": "experience",
+      "title": { "pt": "Canoagem", "en": "Canoeing" },
+      "duration": "2",
+      "price": "30"
+    },
+    {
+      "id": "dolphin-watching",
+      "href": "https://www.campigir.com/pt/atividades",
+      "imageSrc": "https://www.campigir.com/site/uploads/servicos/imagens/C29182D7-BB720_1.jpg",
+      "imageAlt": "Observação de Golfinhos",
+      "type": "experience",
+      "title": { "pt": "Observação de Golfinhos", "en": "Dolphin Watching" },
+      "duration": "3",
+      "price": "45"
+    },
+    {
+      "id": "trekking",
+      "href": "https://www.campigir.com/pt/atividades",
+      "imageSrc": "https://www.campigir.com/site/uploads/servicos/imagens/54FAE727-7D6A0_1.jpg",
+      "imageAlt": "Trekking",
+      "type": "experience",
+      "title": { "pt": "Trekking", "en": "Trekking" },
+      "duration": "4",
+      "price": "25"
+    },
+    {
+      "id": "paddle",
+      "href": "https://www.campigir.com/en/atividade/34/paddle",
+      "imageSrc": "https://www.campigir.com/site/uploads/servicos/imagens/4112C8D4-C2E70_3.jpg",
+      "imageAlt": "Paddle",
+      "type": "experience",
+      "title": { "pt": "Paddle (SUP)", "en": "Paddle (SUP)" },
+      "duration": "2",
+      "price": "30"
+    },
+    {
+      "id": "surf-equipment-rental",
+      "href": "https://www.campigir.com/pt/atividade/28/aluguer-de-equipamento-de-surf",
+      "imageSrc": "https://www.campigir.com/site/uploads/servicos/imagens/6BF56108-90DB0_.png",
+      "imageAlt": "Aluguer de equipamento de surf",
+      "type": "rental",
+      "title": { "pt": "Equipamento de Surf", "en": "Surf Equipment" },
+      "duration": "24",
+      "price": "20",
+      "pricePerHour": "5",
+      "perDay": true
+    },
+    {
+      "id": "bicycle-rental",
+      "href": "https://www.campigir.com/en/atividades",
+      "imageSrc": "https://www.campigir.com/site/uploads/servicos/imagens/5DA2E7E8-0FD70_3.jpg",
+      "imageAlt": "Aluguer de bicicletas",
+      "type": "rental",
+      "title": { "pt": "Bicicletas", "en": "Bicycles" },
+      "duration": "24",
+      "price": "15",
+      "pricePerHour": "4",
+      "perDay": true
+    },
+    {
+      "id": "canoe-rental",
+      "href": "https://www.campigir.com/en/atividades",
+      "imageSrc": "https://www.campigir.com/site/uploads/servicos/imagens/8DD24911-14E30_3.jpg",
+      "imageAlt": "Aluguer de canoas",
+      "type": "rental",
+      "title": { "pt": "Canoas", "en": "Canoes" },
+      "duration": "24",
+      "price": "18",
+      "pricePerHour": "6",
+      "perDay": true
+    },
+    {
+      "id": "paddle-rental",
+      "href": "https://www.campigir.com/en/atividade/34/paddle",
+      "imageSrc": "https://www.campigir.com/site/uploads/servicos/imagens/866B62C2-A7F10_3.jpg",
+      "imageAlt": "Aluguer de pranchas de paddle",
+      "type": "rental",
+      "title": { "pt": "Pranchas de Paddle", "en": "Paddle Boards" },
+      "duration": "24",
+      "price": "22",
+      "pricePerHour": "7",
+      "perDay": true
+    }
+  ]
+}

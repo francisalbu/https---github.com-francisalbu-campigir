@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Campigir — Experiências & Aluguer de Material</title>
+    <meta
+      name="description"
+      content="Descobre as experiências e o aluguer de material da Campigir: surf, canoagem, trekking, passeios pedestres, observação de golfinhos e muito mais junto à natureza e ao mar."
+    />
+    <meta name="theme-color" content="#1B5E20" />
+
+    <!-- PWA / mobile web app -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Campigir" />
+    <link rel="apple-touch-icon" href="./icon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Campigir — Experiências & Aluguer de Material" />
+    <meta
+      property="og:description"
+      content="Experiências e aluguer de material Campigir: surf, canoagem, trekking, passeios e observação de golfinhos."
+    />
+
+    <!-- Performance: preconnect to image CDN -->
+    <link rel="preconnect" href="https://c.animaapp.com" crossorigin />
+    <link rel="dns-prefetch" href="https://c.animaapp.com" />
+
+    <link href="tailwind.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./src/index.tsx"></script>
+  </body>
+</html>

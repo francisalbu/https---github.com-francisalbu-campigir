@@ -1,0 +1,19 @@
+{
+  "name": "Campigir — Experiências & Aluguer de Material",
+  "short_name": "Campigir",
+  "description": "Experiências e aluguer de material Campigir junto à natureza e ao mar.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1B5E20",
+  "theme_color": "#1B5E20",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
