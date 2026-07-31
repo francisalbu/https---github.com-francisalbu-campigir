@@ -20,7 +20,7 @@ import {
   addBlackout,
   removeBlackout,
   getStats,
-} from "./db.js";
+} from "./db-supabase.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = join(__dirname, "..", "dist");
@@ -47,9 +47,9 @@ app.get("/api/health", (_req, res) => {
 });
 
 /** All experiences & rentals (source of truth for the frontend). */
-app.get("/api/experiences", (_req, res) => {
+app.get("/api/experiences", async (_req, res) => {
   try {
-    res.json({ experiences: getExperiences() });
+    res.json({ experiences: await getExperiences() });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to load experiences" });
@@ -61,13 +61,13 @@ app.get("/api/experiences", (_req, res) => {
  * GET /api/experiences/:id/availability?from=YYYY-MM-DD&to=YYYY-MM-DD
  * Defaults to the next 60 days when the range is omitted.
  */
-app.get("/api/experiences/:id/availability", (req, res) => {
+app.get("/api/experiences/:id/availability", async (req, res) => {
   const today = new Date();
   const from = String(req.query.from || today.toISOString().slice(0, 10));
   const defaultTo = new Date(today);
   defaultTo.setDate(defaultTo.getDate() + 60);
   const to = String(req.query.to || defaultTo.toISOString().slice(0, 10));
-  const days = availabilityRange(req.params.id, from, to);
+  const days = await availabilityRange(req.params.id, from, to);
   if (days === null) return res.status(404).json({ error: "Experience not found" });
   res.json({ availability: days });
 });
@@ -76,7 +76,7 @@ app.get("/api/experiences/:id/availability", (req, res) => {
  * Create a booking. Prices are recomputed server-side from the stored
  * experience so the client cannot tamper with the total.
  */
-app.post("/api/bookings", (req, res) => {
+app.post("/api/bookings", async (req, res) => {
   const b = req.body ?? {};
 
   // Basic validation.
@@ -86,7 +86,7 @@ app.post("/api/bookings", (req, res) => {
     return res.status(400).json({ error: "Missing fields", fields: missing });
   }
 
-  const experience = getExperience(b.experienceId);
+  const experience = await getExperience(b.experienceId);
   if (!experience) {
     return res.status(404).json({ error: "Experience not found" });
   }
@@ -121,7 +121,7 @@ app.post("/api/bookings", (req, res) => {
   // Availability guard: reject blocked days and overbooking. A rental consumes
   // `quantity` units, an experience consumes `count` seats.
   const load = isRental ? quantity : count;
-  const availability = availabilityFor(experience.id, String(b.date));
+  const availability = await availabilityFor(experience.id, String(b.date));
   if (availability?.blocked) {
     return res
       .status(409)
@@ -135,7 +135,7 @@ app.post("/api/bookings", (req, res) => {
   }
 
   try {
-    const booking = createBooking({
+    const booking = await createBooking({
       experience_id: experience.id,
       kind: experience.type,
       date: String(b.date),
@@ -157,8 +157,8 @@ app.post("/api/bookings", (req, res) => {
 });
 
 /** Admin: list all bookings (protected by a simple bearer token). */
-app.get("/api/bookings", requireAdmin, (_req, res) => {
-  res.json({ bookings: listBookings() });
+app.get("/api/bookings", requireAdmin, async (_req, res) => {
+  res.json({ bookings: await listBookings() });
 });
 
 /** Admin login: exchange the password for the bearer token. */
@@ -171,15 +171,15 @@ app.post("/api/admin/login", (req, res) => {
 });
 
 /** Admin dashboard statistics. */
-app.get("/api/admin/stats", requireAdmin, (_req, res) => {
-  res.json({ stats: getStats() });
+app.get("/api/admin/stats", requireAdmin, async (_req, res) => {
+  res.json({ stats: await getStats() });
 });
 
 /** Update a booking's status. */
-app.patch("/api/bookings/:id", requireAdmin, (req, res) => {
+app.patch("/api/bookings/:id", requireAdmin, async (req, res) => {
   const { status } = req.body ?? {};
   try {
-    const booking = updateBookingStatus(Number(req.params.id), status);
+    const booking = await updateBookingStatus(Number(req.params.id), status);
     if (!booking) return res.status(404).json({ error: "Not found" });
     res.json({ booking });
   } catch {
@@ -188,8 +188,8 @@ app.patch("/api/bookings/:id", requireAdmin, (req, res) => {
 });
 
 /** Delete a booking. */
-app.delete("/api/bookings/:id", requireAdmin, (req, res) => {
-  const removed = deleteBooking(Number(req.params.id));
+app.delete("/api/bookings/:id", requireAdmin, async (req, res) => {
+  const removed = await deleteBooking(Number(req.params.id));
   if (!removed) return res.status(404).json({ error: "Not found" });
   res.json({ ok: true });
 });
@@ -199,18 +199,18 @@ app.delete("/api/bookings/:id", requireAdmin, (req, res) => {
 /* ------------------------------------------------------------------ */
 
 /** List every experience (including inactive ones) for the backoffice. */
-app.get("/api/admin/experiences", requireAdmin, (_req, res) => {
-  res.json({ experiences: getAllExperiences() });
+app.get("/api/admin/experiences", requireAdmin, async (_req, res) => {
+  res.json({ experiences: await getAllExperiences() });
 });
 
 /** Create a new experience or rental. */
-app.post("/api/admin/experiences", requireAdmin, (req, res) => {
+app.post("/api/admin/experiences", requireAdmin, async (req, res) => {
   const b = req.body ?? {};
   if (!b.title?.pt && !b.title?.en) {
     return res.status(400).json({ error: "Título obrigatório" });
   }
   try {
-    const experience = createExperience(b);
+    const experience = await createExperience(b);
     res.status(201).json({ experience });
   } catch (err) {
     console.error(err);
@@ -219,15 +219,15 @@ app.post("/api/admin/experiences", requireAdmin, (req, res) => {
 });
 
 /** Update an experience or rental. */
-app.patch("/api/admin/experiences/:id", requireAdmin, (req, res) => {
-  const experience = updateExperience(req.params.id, req.body ?? {});
+app.patch("/api/admin/experiences/:id", requireAdmin, async (req, res) => {
+  const experience = await updateExperience(req.params.id, req.body ?? {});
   if (!experience) return res.status(404).json({ error: "Not found" });
   res.json({ experience });
 });
 
 /** Delete an experience or rental. */
-app.delete("/api/admin/experiences/:id", requireAdmin, (req, res) => {
-  const removed = deleteExperience(req.params.id);
+app.delete("/api/admin/experiences/:id", requireAdmin, async (req, res) => {
+  const removed = await deleteExperience(req.params.id);
   if (!removed) return res.status(404).json({ error: "Not found" });
   res.json({ ok: true });
 });
@@ -240,43 +240,43 @@ app.delete("/api/admin/experiences/:id", requireAdmin, (req, res) => {
 app.get(
   "/api/admin/experiences/:id/availability",
   requireAdmin,
-  (req, res) => {
+  async (req, res) => {
     const today = new Date();
     const from = String(req.query.from || today.toISOString().slice(0, 10));
     const defaultTo = new Date(today);
     defaultTo.setDate(defaultTo.getDate() + 60);
     const to = String(req.query.to || defaultTo.toISOString().slice(0, 10));
-    const days = availabilityRange(req.params.id, from, to);
+    const days = await availabilityRange(req.params.id, from, to);
     if (days === null) return res.status(404).json({ error: "Not found" });
     res.json({ availability: days });
   },
 );
 
 /** List blackout days (optionally filtered by experience). */
-app.get("/api/admin/blackouts", requireAdmin, (req, res) => {
-  res.json({ blackouts: listBlackouts(req.query.experienceId) });
+app.get("/api/admin/blackouts", requireAdmin, async (req, res) => {
+  res.json({ blackouts: await listBlackouts(req.query.experienceId) });
 });
 
 /** Block a date for an experience. */
-app.post("/api/admin/blackouts", requireAdmin, (req, res) => {
+app.post("/api/admin/blackouts", requireAdmin, async (req, res) => {
   const { experienceId, date, reason } = req.body ?? {};
   if (!experienceId || !date) {
     return res.status(400).json({ error: "experienceId and date required" });
   }
-  if (!getExperience(experienceId)) {
+  if (!(await getExperience(experienceId))) {
     return res.status(404).json({ error: "Experience not found" });
   }
-  res.status(201).json({ blackout: addBlackout(experienceId, date, reason) });
+  res.status(201).json({ blackout: await addBlackout(experienceId, date, reason) });
 });
 
 /** Unblock a date for an experience. */
-app.delete("/api/admin/blackouts", requireAdmin, (req, res) => {
+app.delete("/api/admin/blackouts", requireAdmin, async (req, res) => {
   const experienceId = req.query.experienceId || req.body?.experienceId;
   const date = req.query.date || req.body?.date;
   if (!experienceId || !date) {
     return res.status(400).json({ error: "experienceId and date required" });
   }
-  const removed = removeBlackout(String(experienceId), String(date));
+  const removed = await removeBlackout(String(experienceId), String(date));
   if (!removed) return res.status(404).json({ error: "Not found" });
   res.json({ ok: true });
 });

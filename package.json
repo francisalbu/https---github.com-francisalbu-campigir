@@ -12,6 +12,7 @@
     "dev:all": "concurrently -n web,api -c cyan,magenta \"vite\" \"nodemon server/index.js\""
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.56.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toggle": "^1.1.0",
     "@radix-ui/react-toggle-group": "^1.1.0",
